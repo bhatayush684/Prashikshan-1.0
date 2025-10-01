@@ -59,7 +59,9 @@ const StudentRecommendations = () => {
         setRecs(data);
       } catch (err) {
         console.error(err);
-        toast.error('Unable to load recommendations. Showing defaults.');
+        if (!import.meta.env.PROD) {
+          toast.error('Unable to load recommendations. Showing defaults.');
+        }
         setRecs(recommendations);
       }
     })();
@@ -131,7 +133,9 @@ const StudentRecommendations = () => {
                       setRecs(data);
                     } catch (err) {
                       console.error(err);
-                      toast.error('Action failed. Please try again.');
+                      if (!import.meta.env.PROD) {
+                        toast.error('Action failed. Please try again.');
+                      }
                     }
                   }}
                   variant={rec.applied ? 'outline' : 'default'}

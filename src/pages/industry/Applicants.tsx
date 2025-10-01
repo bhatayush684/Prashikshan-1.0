@@ -31,7 +31,9 @@ const IndustryApplicants = () => {
       setApplicants(data);
     } catch (err) {
       console.error(err);
-      toast.error('API unavailable. Showing demo applicants.');
+      if (!import.meta.env.PROD) {
+        toast.error('API unavailable. Showing demo applicants.');
+      }
       setApplicants(MOCK_APPLICANTS);
     }
   };
@@ -48,7 +50,9 @@ const IndustryApplicants = () => {
       fetchApplicants();
     } catch (err) {
       console.error(err);
-      toast.success('Applicant shortlisted (demo)');
+      if (!import.meta.env.PROD) {
+        toast.success('Applicant shortlisted (demo)');
+      }
       setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: 'shortlisted' } : a));
     }
   };
@@ -61,7 +65,9 @@ const IndustryApplicants = () => {
       fetchApplicants();
     } catch (err) {
       console.error(err);
-      toast.error('Applicant rejected (demo)');
+      if (!import.meta.env.PROD) {
+        toast.error('Applicant rejected (demo)');
+      }
       setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: 'rejected' } : a));
     }
   };

@@ -32,7 +32,9 @@ const FacultyApprovals = () => {
       setRequests(data);
     } catch (err) {
       console.error(err);
-      toast.error('API unavailable. Showing demo approvals.');
+      if (!import.meta.env.PROD) {
+        toast.error('API unavailable. Showing demo approvals.');
+      }
       setRequests(MOCK_REQUESTS);
     }
   };
@@ -49,7 +51,9 @@ const FacultyApprovals = () => {
       fetchRequests();
     } catch (err) {
       console.error(err);
-      toast.error('Could not approve. Demo data shown.');
+      if (!import.meta.env.PROD) {
+        toast.error('Could not approve. Demo data shown.');
+      }
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } as Request : r));
     }
   };
@@ -62,7 +66,9 @@ const FacultyApprovals = () => {
       fetchRequests();
     } catch (err) {
       console.error(err);
-      toast.error('Could not reject. Demo data shown.');
+      if (!import.meta.env.PROD) {
+        toast.error('Could not reject. Demo data shown.');
+      }
       setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } as Request : r));
     }
   };

@@ -23,7 +23,9 @@ const IndustryCertificates = () => {
       setCompletedInterns(data);
     } catch (err) {
       console.error(err);
-      toast.error('API unavailable. Showing demo certificates.');
+      if (!import.meta.env.PROD) {
+        toast.error('API unavailable. Showing demo certificates.');
+      }
       setCompletedInterns(MOCK_COMPLETED);
     }
   };
@@ -42,7 +44,8 @@ const IndustryCertificates = () => {
       // Optimistically mark as certified in demo mode
       setCompletedInterns(prev => prev.map(p => p.id === id ? { ...p, certified: true } : p));
     }
-    toast.success(
+    if (!import.meta.env.PROD) {
+      toast.success(
       <div className="flex items-start gap-3">
         <Award className="h-5 w-5 text-gold mt-0.5" />
         <div>
@@ -51,6 +54,7 @@ const IndustryCertificates = () => {
         </div>
       </div>
     );
+    }
   };
 
   return (

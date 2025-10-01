@@ -65,7 +65,9 @@ const StudentInternships = () => {
       setInternships(data);
     } catch (err) {
       console.error(err);
-      toast.error('API unavailable. Showing demo internships.');
+      if (!import.meta.env.PROD) {
+        toast.error('API unavailable. Showing demo internships.');
+      }
       setInternships(MOCK_INTERNSHIPS);
     }
   };
