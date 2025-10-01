@@ -17,10 +17,23 @@ interface Applicant {
 const IndustryApplicants = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
 
+  const MOCK_APPLICANTS: Applicant[] = [
+    { id: 1, name: 'Ananya Verma', skills: ['React', 'TypeScript'], status: 'pending', internship: 'Frontend Developer Intern' },
+    { id: 2, name: 'Karan Mehta', skills: ['Python', 'SQL'], status: 'shortlisted', internship: 'Data Analyst Intern' },
+    { id: 3, name: 'Priya Singh', skills: ['Design', 'Figma'], status: 'rejected', internship: 'UI/UX Designer Intern' },
+  ];
+
   const fetchApplicants = async () => {
-    const res = await fetch('/api/industry/applicants');
-    const data = await res.json();
-    setApplicants(data);
+    try {
+      const res = await fetch('/api/industry/applicants');
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      setApplicants(data);
+    } catch (err) {
+      console.error(err);
+      toast.error('API unavailable. Showing demo applicants.');
+      setApplicants(MOCK_APPLICANTS);
+    }
   };
 
   useEffect(() => {
@@ -28,15 +41,29 @@ const IndustryApplicants = () => {
   }, []);
 
   const handleShortlist = async (id: number) => {
-    await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'shortlisted' }) });
-    toast.success('Applicant shortlisted!');
-    fetchApplicants();
+    try {
+      const res = await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'shortlisted' }) });
+      if (!res.ok) throw new Error(String(res.status));
+      toast.success('Applicant shortlisted!');
+      fetchApplicants();
+    } catch (err) {
+      console.error(err);
+      toast.success('Applicant shortlisted (demo)');
+      setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: 'shortlisted' } : a));
+    }
   };
 
   const handleReject = async (id: number) => {
-    await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
-    toast.error('Applicant rejected');
-    fetchApplicants();
+    try {
+      const res = await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
+      if (!res.ok) throw new Error(String(res.status));
+      toast.error('Applicant rejected');
+      fetchApplicants();
+    } catch (err) {
+      console.error(err);
+      toast.error('Applicant rejected (demo)');
+      setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: 'rejected' } : a));
+    }
   };
 
   return (

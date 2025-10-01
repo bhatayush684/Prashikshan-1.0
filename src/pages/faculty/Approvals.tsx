@@ -18,10 +18,23 @@ interface Request {
 const FacultyApprovals = () => {
   const [requests, setRequests] = useState<Request[]>([]);
 
+  const MOCK_REQUESTS: Request[] = [
+    { id: 1, studentName: 'Ayush Bhatt', internship: 'Data Analyst Intern', company: 'FinCorp', status: 'pending' },
+    { id: 2, studentName: 'Neha Sharma', internship: 'Frontend Developer Intern', company: 'WebWorks', status: 'approved' },
+    { id: 3, studentName: 'Rohit Kumar', internship: 'Marketing Intern', company: 'BrandX', status: 'rejected' },
+  ];
+
   const fetchRequests = async () => {
-    const res = await fetch('/api/faculty/approvals');
-    const data = await res.json();
-    setRequests(data);
+    try {
+      const res = await fetch('/api/faculty/approvals');
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      setRequests(data);
+    } catch (err) {
+      console.error(err);
+      toast.error('API unavailable. Showing demo approvals.');
+      setRequests(MOCK_REQUESTS);
+    }
   };
 
   useEffect(() => {
@@ -29,15 +42,29 @@ const FacultyApprovals = () => {
   }, []);
 
   const handleApprove = async (id: number) => {
-    await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'approved' }) });
-    toast.success('Internship request approved!');
-    fetchRequests();
+    try {
+      const res = await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'approved' }) });
+      if (!res.ok) throw new Error(String(res.status));
+      toast.success('Internship request approved!');
+      fetchRequests();
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not approve. Demo data shown.');
+      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved' } as Request : r));
+    }
   };
 
   const handleReject = async (id: number) => {
-    await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
-    toast.error('Internship request rejected');
-    fetchRequests();
+    try {
+      const res = await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
+      if (!res.ok) throw new Error(String(res.status));
+      toast.error('Internship request rejected');
+      fetchRequests();
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not reject. Demo data shown.');
+      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected' } as Request : r));
+    }
   };
 
   return (

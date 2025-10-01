@@ -19,10 +19,22 @@ const IndustryPostInternship = () => {
   });
   const [posted, setPosted] = useState<Array<{ id: number; title: string; description: string; duration: string; mode: string; skills: string[] }>>([]);
 
+  const MOCK_POSTED: Array<{ id: number; title: string; description: string; duration: string; mode: string; skills: string[] }> = [
+    { id: 1, title: 'Marketing Intern', description: 'Assist in campaign analysis and content calendars.', duration: '10 weeks', mode: 'Hybrid', skills: ['SEO', 'Canva', 'Analytics'] },
+    { id: 2, title: 'Backend Intern', description: 'Build APIs and services.', duration: '12 weeks', mode: 'Onsite', skills: ['Node.js', 'Express', 'MongoDB'] },
+  ];
+
   const fetchPosted = async () => {
-    const res = await fetch('/api/industry/posted');
-    const data = await res.json();
-    setPosted(data);
+    try {
+      const res = await fetch('/api/industry/posted');
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      setPosted(data);
+    } catch (err) {
+      console.error(err);
+      toast.error('API unavailable. Showing demo postings.');
+      setPosted(MOCK_POSTED);
+    }
   };
 
   useEffect(() => {
@@ -38,10 +50,19 @@ const IndustryPostInternship = () => {
       mode: formData.mode,
       skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
     };
-    await fetch('/api/industry/posted', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    toast.success('Internship posted successfully!');
-    setFormData({ title: '', description: '', duration: '', mode: '', skills: '' });
-    fetchPosted();
+    try {
+      const res = await fetch('/api/industry/posted', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error(String(res.status));
+      toast.success('Internship posted successfully!');
+      setFormData({ title: '', description: '', duration: '', mode: '', skills: '' });
+      fetchPosted();
+    } catch (err) {
+      console.error(err);
+      // Demo mode: push to local list
+      setPosted(prev => [{ id: Date.now(), title: payload.title, description: payload.description, duration: payload.duration, mode: payload.mode, skills: payload.skills }, ...prev]);
+      setFormData({ title: '', description: '', duration: '', mode: '', skills: '' });
+      toast.success('Internship posted (demo)');
+    }
   };
 
   return (

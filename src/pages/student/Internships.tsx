@@ -28,6 +28,35 @@ const StudentInternships = () => {
   const { user } = useAuth();
   const [internships, setInternships] = useState<Internship[]>([]);
 
+  const MOCK_INTERNSHIPS: Internship[] = [
+    {
+      id: 1,
+      title: 'Data Analyst Intern',
+      company: 'FinCorp',
+      duration: '3 months',
+      mode: 'Hybrid',
+      stipend: '₹12,000/month',
+      skills: ['Python', 'SQL', 'Excel'],
+      applied: false,
+      spots: 3,
+      applicants: 24,
+      difficulty: 'Intermediate',
+    },
+    {
+      id: 2,
+      title: 'Frontend Developer Intern',
+      company: 'WebWorks',
+      duration: '2 months',
+      mode: 'Remote',
+      stipend: '₹10,000/month',
+      skills: ['React', 'TypeScript', 'CSS'],
+      applied: false,
+      spots: 2,
+      applicants: 15,
+      difficulty: 'Beginner',
+    },
+  ];
+
   const fetchInternships = async () => {
     try {
       const res = await fetch('/api/student/internships');
@@ -36,7 +65,8 @@ const StudentInternships = () => {
       setInternships(data);
     } catch (err) {
       console.error(err);
-      toast.error('Unable to load internships. Please try again.');
+      toast.error('API unavailable. Showing demo internships.');
+      setInternships(MOCK_INTERNSHIPS);
     }
   };
 
