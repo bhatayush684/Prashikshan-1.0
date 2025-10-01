@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ChatBot from "@/components/ChatBot";
 
 // Landing & Auth
 import Landing from "./pages/Landing";
@@ -79,6 +80,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         </ErrorBoundary>
+        {/* Global floating ChatBot visible on all pages */}
+        <ChatBot />
         <Toaster />
       </AuthProvider>
     </BrowserRouter>
