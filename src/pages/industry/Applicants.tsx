@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import IndustrySidebar from '@/components/industry/IndustrySidebar';
 import { Card } from '@/components/ui/card';
@@ -15,24 +15,28 @@ interface Applicant {
 }
 
 const IndustryApplicants = () => {
-  const [applicants, setApplicants] = useState<Applicant[]>([
-    { id: 1, name: 'Ayush Sharma', skills: ['Python', 'SQL', 'Excel'], status: 'pending', internship: 'Data Analyst Intern' },
-    { id: 2, name: 'Priya Mehta', skills: ['React', 'CSS', 'JavaScript'], status: 'pending', internship: 'Frontend Developer' },
-    { id: 3, name: 'Rahul Singh', skills: ['Social Media', 'Content Writing'], status: 'shortlisted', internship: 'Marketing Intern' },
-  ]);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
 
-  const handleShortlist = (id: number) => {
-    setApplicants(prev =>
-      prev.map(app => app.id === id ? { ...app, status: 'shortlisted' as const } : app)
-    );
-    toast.success('Applicant shortlisted!');
+  const fetchApplicants = async () => {
+    const res = await fetch('/api/industry/applicants');
+    const data = await res.json();
+    setApplicants(data);
   };
 
-  const handleReject = (id: number) => {
-    setApplicants(prev =>
-      prev.map(app => app.id === id ? { ...app, status: 'rejected' as const } : app)
-    );
+  useEffect(() => {
+    fetchApplicants();
+  }, []);
+
+  const handleShortlist = async (id: number) => {
+    await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'shortlisted' }) });
+    toast.success('Applicant shortlisted!');
+    fetchApplicants();
+  };
+
+  const handleReject = async (id: number) => {
+    await fetch('/api/industry/applicants/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
     toast.error('Applicant rejected');
+    fetchApplicants();
   };
 
   return (

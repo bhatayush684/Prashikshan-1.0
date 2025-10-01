@@ -3,10 +3,25 @@ import StudentSidebar from '@/components/student/StudentSidebar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 import { Sparkles, TrendingUp } from 'lucide-react';
 
+interface Recommendation {
+  id: number;
+  title: string;
+  company: string;
+  match: number;
+  reason: string;
+  skills: string[];
+  applied?: boolean;
+}
+
 const StudentRecommendations = () => {
-  const recommendations = [
+  const { user } = useAuth();
+  // Move recommendations above first use to avoid temporal dead zone runtime error
+  const recommendations: Recommendation[] = [
     {
       id: 1,
       title: 'UI/UX Designer Intern',
@@ -33,6 +48,23 @@ const StudentRecommendations = () => {
     },
   ];
 
+  const [recs, setRecs] = useState<Recommendation[]>(recommendations);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/student/recommendations');
+        if (!res.ok) throw new Error(`Failed to load recommendations: ${res.status}`);
+        const data = await res.json();
+        setRecs(data);
+      } catch (err) {
+        console.error(err);
+        toast.error('Unable to load recommendations. Showing defaults.');
+        setRecs(recommendations);
+      }
+    })();
+  }, []);
+
   const skillGaps = [
     { skill: 'Advanced SQL', importance: 'High', courses: 3 },
     { skill: 'Cloud Computing (AWS)', importance: 'Medium', courses: 5 },
@@ -55,7 +87,7 @@ const StudentRecommendations = () => {
         <Card className="p-6 bg-gradient-card">
           <h3 className="text-lg font-semibold mb-4">Top Matches For You</h3>
           <div className="space-y-4">
-            {recommendations.map((rec) => (
+            {recs.map((rec) => (
               <Card key={rec.id} className="p-4 border-2">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -81,7 +113,31 @@ const StudentRecommendations = () => {
                   ))}
                 </div>
 
-                <Button className="w-full">Apply Now</Button>
+                <Button
+                  className="w-full"
+                  disabled={rec.applied}
+                  onClick={async () => {
+                    try {
+                      const applyRes = await fetch('/api/student/recommendations/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: rec.id })
+                      });
+                      if (!applyRes.ok) throw new Error(`Apply failed: ${applyRes.status}`);
+                      toast.success(`${user?.name || 'You'} applied to ${rec.title} at ${rec.company}`);
+                      const res = await fetch('/api/student/recommendations');
+                      if (!res.ok) throw new Error(`Reload failed: ${res.status}`);
+                      const data = await res.json();
+                      setRecs(data);
+                    } catch (err) {
+                      console.error(err);
+                      toast.error('Action failed. Please try again.');
+                    }
+                  }}
+                  variant={rec.applied ? 'outline' : 'default'}
+                >
+                  {rec.applied ? '✓ Applied' : 'Apply Now'}
+                </Button>
               </Card>
             ))}
           </div>

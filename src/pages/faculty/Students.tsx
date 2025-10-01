@@ -10,6 +10,12 @@ const FacultyStudents = () => {
     { id: 2, name: 'Priya Mehta', internship: 'Frontend Developer @ WebWorks', status: 'Ongoing', progress: 75 },
     { id: 3, name: 'Rahul Singh', internship: 'Marketing @ BrandX', status: 'Pending', progress: 0 },
     { id: 4, name: 'Sneha Patel', internship: 'Backend Developer @ TechFlow', status: 'Completed', progress: 100 },
+    { id: 5, name: 'Karan Verma', internship: 'ML Intern @ DataWave', status: 'Ongoing', progress: 40 },
+    { id: 6, name: 'Ishita Rao', internship: 'UI/UX @ PixelCraft', status: 'Pending', progress: 0 },
+    { id: 7, name: 'Mohit Gupta', internship: 'DevOps @ CloudNine', status: 'Ongoing', progress: 60 },
+    { id: 8, name: 'Nisha Jain', internship: 'QA Engineer @ TestLab', status: 'Ongoing', progress: 35 },
+    { id: 9, name: 'Arjun Desai', internship: 'Cybersecurity @ SecureNet', status: 'Completed', progress: 100 },
+    { id: 10, name: 'Ritika Bose', internship: 'Content @ BrandX', status: 'Pending', progress: 0 },
   ];
 
   return (

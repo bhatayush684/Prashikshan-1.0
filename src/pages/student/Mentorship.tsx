@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import StudentSidebar from '@/components/student/StudentSidebar';
 import { Card } from '@/components/ui/card';
@@ -6,20 +7,61 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Phone, CheckCircle2, Circle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 const StudentMentorship = () => {
-  const messages = [
-    { id: 1, sender: 'Dr. Ramesh Kumar', text: 'How is your data analysis project going?', time: '10:30 AM', isMentor: true },
-    { id: 2, sender: 'You', text: 'Going well! Completed the initial data cleaning phase.', time: '10:35 AM', isMentor: false },
-    { id: 3, sender: 'Dr. Ramesh Kumar', text: 'Great! Make sure to document your findings in the logbook.', time: '10:40 AM', isMentor: true },
-  ];
+  const messagesKey = 'student_mentorship_messages';
+  const tasksKey = 'student_mentorship_tasks';
 
-  const tasks = [
-    { id: 1, task: 'Complete Python certification', completed: true },
-    { id: 2, task: 'Submit mid-term internship report', completed: true },
-    { id: 3, task: 'Practice SQL queries daily', completed: false },
-    { id: 4, task: 'Prepare presentation for final review', completed: false },
-  ];
+  const [messages, setMessages] = useState<Array<{ id: number; sender: string; text: string; time: string; isMentor: boolean }>>(() => {
+    const saved = localStorage.getItem(messagesKey);
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 1, sender: 'Dr. Ramesh Kumar', text: 'How is your data analysis project going?', time: '10:30 AM', isMentor: true },
+      { id: 2, sender: 'You', text: 'Going well! Completed the initial data cleaning phase.', time: '10:35 AM', isMentor: false },
+      { id: 3, sender: 'Dr. Ramesh Kumar', text: 'Great! Make sure to document your findings in the logbook.', time: '10:40 AM', isMentor: true },
+    ];
+  });
+
+  const [tasks, setTasks] = useState<Array<{ id: number; task: string; completed: boolean }>>(() => {
+    const saved = localStorage.getItem(tasksKey);
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 1, task: 'Complete Python certification', completed: true },
+      { id: 2, task: 'Submit mid-term internship report', completed: true },
+      { id: 3, task: 'Practice SQL queries daily', completed: false },
+      { id: 4, task: 'Prepare presentation for final review', completed: false },
+    ];
+  });
+
+  const [draft, setDraft] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem(messagesKey, JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem(tasksKey, JSON.stringify(tasks));
+  }, [tasks]);
+
+  const sendMessage = async () => {
+    const text = draft.trim();
+    if (!text) return;
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    await fetch('/api/student/mentorship/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sender: 'You', text, time, isMentor: false }) });
+    const res = await fetch('/api/student/mentorship');
+    const data = await res.json();
+    setMessages(data.messages);
+    setDraft('');
+  };
+
+  const toggleTask = async (id: number) => {
+    await fetch('/api/student/mentorship/tasks/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    const res = await fetch('/api/student/mentorship');
+    const data = await res.json();
+    setTasks(data.tasks);
+  };
 
   return (
     <DashboardLayout sidebar={<StudentSidebar />}>
@@ -50,7 +92,7 @@ const StudentMentorship = () => {
                 </div>
               </div>
 
-              <Button className="w-full">Schedule Meeting</Button>
+              <Button className="w-full" onClick={() => toast.success('Meeting request sent to your mentor!')}>Schedule Meeting</Button>
             </div>
           </Card>
 
@@ -76,8 +118,8 @@ const StudentMentorship = () => {
               ))}
             </div>
             <div className="flex gap-2">
-              <Input placeholder="Type your message..." />
-              <Button>Send</Button>
+              <Input placeholder="Type your message..." value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } }} />
+              <Button onClick={sendMessage}>Send</Button>
             </div>
           </Card>
         </div>
@@ -90,7 +132,7 @@ const StudentMentorship = () => {
                 key={task.id}
                 className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
               >
-                <Checkbox checked={task.completed} />
+                <Checkbox checked={task.completed} onCheckedChange={() => toggleTask(task.id)} />
                 <span className={task.completed ? 'line-through text-muted-foreground' : ''}>
                   {task.task}
                 </span>

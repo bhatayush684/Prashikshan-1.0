@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import IndustrySidebar from '@/components/industry/IndustrySidebar';
 import { Card } from '@/components/ui/card';
@@ -17,11 +17,31 @@ const IndustryPostInternship = () => {
     mode: '',
     skills: '',
   });
+  const [posted, setPosted] = useState<Array<{ id: number; title: string; description: string; duration: string; mode: string; skills: string[] }>>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchPosted = async () => {
+    const res = await fetch('/api/industry/posted');
+    const data = await res.json();
+    setPosted(data);
+  };
+
+  useEffect(() => {
+    fetchPosted();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      duration: formData.duration,
+      mode: formData.mode,
+      skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    await fetch('/api/industry/posted', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     toast.success('Internship posted successfully!');
     setFormData({ title: '', description: '', duration: '', mode: '', skills: '' });
+    fetchPosted();
   };
 
   return (
@@ -98,6 +118,28 @@ const IndustryPostInternship = () => {
             <Button type="submit" className="w-full">Post Internship</Button>
           </form>
         </Card>
+
+        {posted.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Your Posted Internships</h2>
+            {posted.map(p => (
+              <Card key={p.id} className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold">{p.title}</h3>
+                    <p className="text-sm text-muted-foreground">{p.description}</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {p.skills.map((s, i) => (
+                        <span key={i} className="text-xs px-2 py-1 bg-muted rounded">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">{p.duration} • {p.mode}</div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

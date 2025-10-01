@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import StudentSidebar from '@/components/student/StudentSidebar';
 import { Card } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Briefcase, DollarSign, Users, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 
 interface Internship {
@@ -24,94 +25,40 @@ interface Internship {
 
 const StudentInternships = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [internships, setInternships] = useState<Internship[]>([
-    {
-      id: 1,
-      title: 'Data Analyst Intern',
-      company: 'FinCorp',
-      duration: '3 months',
-      mode: 'Remote',
-      stipend: '₹15,000/month',
-      skills: ['Python', 'SQL', 'Excel', 'Data Visualization'],
-      applied: true,
-      spots: 5,
-      applicants: 28,
-      difficulty: 'Intermediate'
-    },
-    {
-      id: 2,
-      title: 'Frontend Developer Intern',
-      company: 'WebWorks',
-      duration: '6 months',
-      mode: 'Onsite - Bangalore',
-      stipend: '₹20,000/month',
-      skills: ['React', 'TypeScript', 'CSS', 'Tailwind'],
-      applied: false,
-      spots: 3,
-      applicants: 45,
-      difficulty: 'Intermediate'
-    },
-    {
-      id: 3,
-      title: 'Marketing Intern',
-      company: 'BrandX',
-      duration: '4 months',
-      mode: 'Remote',
-      stipend: '₹12,000/month',
-      skills: ['Social Media', 'Content Writing', 'SEO', 'Analytics'],
-      applied: false,
-      spots: 4,
-      applicants: 32,
-      difficulty: 'Beginner'
-    },
-    {
-      id: 4,
-      title: 'Backend Developer Intern',
-      company: 'TechFlow',
-      duration: '6 months',
-      mode: 'Hybrid - Delhi',
-      stipend: '₹18,000/month',
-      skills: ['Node.js', 'MongoDB', 'REST API', 'Docker'],
-      applied: false,
-      spots: 2,
-      applicants: 56,
-      difficulty: 'Advanced'
-    },
-    {
-      id: 5,
-      title: 'UI/UX Designer Intern',
-      company: 'DesignHub',
-      duration: '4 months',
-      mode: 'Remote',
-      stipend: '₹16,000/month',
-      skills: ['Figma', 'Adobe XD', 'Prototyping', 'User Research'],
-      applied: false,
-      spots: 3,
-      applicants: 38,
-      difficulty: 'Intermediate'
-    },
-    {
-      id: 6,
-      title: 'HR Intern',
-      company: 'PeopleFirst',
-      duration: '3 months',
-      mode: 'Onsite - Mumbai',
-      stipend: '₹10,000/month',
-      skills: ['Recruitment', 'Communication', 'MS Office', 'HR Operations'],
-      applied: false,
-      spots: 5,
-      applicants: 24,
-      difficulty: 'Beginner'
-    },
-  ]);
+  const { user } = useAuth();
+  const [internships, setInternships] = useState<Internship[]>([]);
 
-  const handleApply = (id: number) => {
-    setInternships(prev =>
-      prev.map(internship =>
-        internship.id === id ? { ...internship, applied: true, applicants: internship.applicants + 1 } : internship
-      )
-    );
-    toast.success('Application submitted successfully! You\'ll hear back within 7 days.');
+  const fetchInternships = async () => {
+    try {
+      const res = await fetch('/api/student/internships');
+      if (!res.ok) throw new Error(`Failed to load internships: ${res.status}`);
+      const data = await res.json();
+      setInternships(data);
+    } catch (err) {
+      console.error(err);
+      toast.error('Unable to load internships. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    fetchInternships();
+  }, []);
+
+  const handleApply = async (id: number) => {
+    try {
+      const res = await fetch('/api/student/internships/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (!res.ok) throw new Error(`Apply failed: ${res.status}`);
+      const applicantName = user?.name || 'You';
+      toast.success(`${applicantName} applied successfully! You'll hear back within 7 days.`);
+      fetchInternships();
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not apply. Please try again.');
+    }
   };
 
   const filteredInternships = internships.filter(internship =>

@@ -110,8 +110,7 @@ const Landing = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline"
-              className="text-lg px-8 py-6 border-2 border-white text-white hover:bg-white/20 backdrop-blur-sm"
+              className="text-lg px-8 py-6 shadow-glow hover:scale-105 hover:shadow-glow-accent transition-all bg-white text-primary hover:bg-white/90"
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Learn More

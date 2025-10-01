@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import IndustrySidebar from '@/components/industry/IndustrySidebar';
 import { Card } from '@/components/ui/card';
@@ -7,40 +8,21 @@ import { Award, Shield, Download, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 const IndustryCertificates = () => {
-  const completedInterns = [
-    { 
-      id: 1, 
-      name: 'Sneha Patel', 
-      role: 'Backend Developer Intern', 
-      duration: '6 months', 
-      certified: true,
-      rating: 4.8,
-      completionDate: 'June 15, 2025',
-      achievements: ['Completed 12 projects', 'Excellent code quality', 'Strong team collaboration']
-    },
-    { 
-      id: 2, 
-      name: 'Rohit Verma', 
-      role: 'Cloud Engineer Intern', 
-      duration: '4 months', 
-      certified: false,
-      rating: 4.5,
-      completionDate: 'June 20, 2025',
-      achievements: ['AWS Certified', 'Deployed 5 applications', 'Quick learner']
-    },
-    { 
-      id: 3, 
-      name: 'Ananya Reddy', 
-      role: 'Data Analyst Intern', 
-      duration: '5 months', 
-      certified: true,
-      rating: 4.9,
-      completionDate: 'June 10, 2025',
-      achievements: ['Created 20+ dashboards', 'Python expertise', 'Outstanding performance']
-    },
-  ];
+  const [completedInterns, setCompletedInterns] = useState<Array<{ id: number; name: string; role: string; duration: string; certified: boolean; rating: number; completionDate: string; achievements: string[] }>>([]);
 
-  const handleIssueCertificate = (name: string) => {
+  const fetchCertificates = async () => {
+    const res = await fetch('/api/industry/certificates');
+    const data = await res.json();
+    setCompletedInterns(data);
+  };
+
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const handleIssueCertificate = async (name: string, id: number) => {
+    await fetch('/api/industry/certificates/issue', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    fetchCertificates();
     toast.success(
       <div className="flex items-start gap-3">
         <Award className="h-5 w-5 text-gold mt-0.5" />
@@ -143,7 +125,7 @@ const IndustryCertificates = () => {
                 ) : (
                   <Button 
                     className="flex-1 bg-gradient-gold hover:shadow-glow-gold"
-                    onClick={() => handleIssueCertificate(intern.name)}
+                    onClick={() => handleIssueCertificate(intern.name, intern.id)}
                   >
                     <Award className="h-4 w-4 mr-2" />
                     Issue Blockchain Certificate

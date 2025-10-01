@@ -1,3 +1,20 @@
+# Prashikshan MERN
+
+## Getting Started
+
+1. Copy `.env.example` to `.env` in `server` and set values
+2. Install dependencies
+3. Run both client and server
+
+```bash
+# in project root
+npm i -D concurrently
+cd server && npm i && cd ..
+npm run dev:all
+```
+
+Server runs on `http://localhost:5000`, client on `http://localhost:5173`.
+
 # Welcome to your Lovable project
 
 ## Project info

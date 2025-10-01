@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import IndustrySidebar from '@/components/industry/IndustrySidebar';
 import { Card } from '@/components/ui/card';
@@ -10,10 +11,30 @@ const IndustryMentorship = () => {
     { id: 2, name: 'Priya Mehta', role: 'Frontend Developer Intern', progress: 'Week 9/12' },
   ];
 
-  const messages = [
-    { id: 1, from: 'Ayush Sharma', text: 'Need guidance on SQL optimization', time: '2h ago' },
-    { id: 2, from: 'Priya Mehta', text: 'Completed React module successfully', time: '5h ago' },
-  ];
+  const [messages, setMessages] = useState<Array<{ id: number; from: string; text: string; time: string }>>(() => {
+    const saved = localStorage.getItem('industry_mentorship_messages');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 1, from: 'Ayush Sharma', text: 'Need guidance on SQL optimization', time: '2h ago' },
+      { id: 2, from: 'Priya Mehta', text: 'Completed React module successfully', time: '5h ago' },
+    ];
+  });
+
+  const [draft, setDraft] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('industry_mentorship_messages', JSON.stringify(messages));
+  }, [messages]);
+
+  const send = () => {
+    const text = draft.trim();
+    if (!text) return;
+    setMessages(prev => [
+      ...prev,
+      { id: prev.length ? Math.max(...prev.map(m => m.id)) + 1 : 1, from: 'You', text, time: 'just now' },
+    ]);
+    setDraft('');
+  };
 
   return (
     <DashboardLayout sidebar={<IndustrySidebar />}>
@@ -51,8 +72,8 @@ const IndustryMentorship = () => {
               ))}
             </div>
             <div className="mt-4 flex gap-2">
-              <Input placeholder="Type your message..." />
-              <Button>Send</Button>
+              <Input placeholder="Type your message..." value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); send(); } }} />
+              <Button onClick={send}>Send</Button>
             </div>
           </Card>
         </div>

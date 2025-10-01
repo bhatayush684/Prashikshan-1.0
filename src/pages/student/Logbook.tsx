@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import StudentSidebar from '@/components/student/StudentSidebar';
 import { Card } from '@/components/ui/card';
@@ -17,7 +17,10 @@ interface LogEntry {
 }
 
 const StudentLogbook = () => {
-  const [entries, setEntries] = useState<LogEntry[]>([
+  const [entries, setEntries] = useState<LogEntry[]>(() => {
+    const saved = localStorage.getItem('student_logbook_entries');
+    if (saved) return JSON.parse(saved);
+    return [
     {
       id: 1,
       date: '2025-09-22',
@@ -30,7 +33,11 @@ const StudentLogbook = () => {
       tasks: 'SQL query optimization, Database schema design',
       learning: 'Understanding of database indexing and query performance',
     },
-  ]);
+  ];
+  });
+  useEffect(() => {
+    localStorage.setItem('student_logbook_entries', JSON.stringify(entries));
+  }, [entries]);
 
   const [newEntry, setNewEntry] = useState({
     date: '',

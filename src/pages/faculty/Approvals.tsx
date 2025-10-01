@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import FacultySidebar from '@/components/faculty/FacultySidebar';
 import { Card } from '@/components/ui/card';
@@ -16,24 +16,28 @@ interface Request {
 }
 
 const FacultyApprovals = () => {
-  const [requests, setRequests] = useState<Request[]>([
-    { id: 1, studentName: 'Ankit Kumar', internship: 'Data Scientist Intern', company: 'DataCorp', status: 'pending' },
-    { id: 2, studentName: 'Neha Gupta', internship: 'UI/UX Designer', company: 'DesignHub', status: 'pending' },
-    { id: 3, studentName: 'Rohit Verma', internship: 'Cloud Engineer', company: 'CloudTech', status: 'pending' },
-  ]);
+  const [requests, setRequests] = useState<Request[]>([]);
 
-  const handleApprove = (id: number) => {
-    setRequests(prev =>
-      prev.map(req => req.id === id ? { ...req, status: 'approved' as const } : req)
-    );
-    toast.success('Internship request approved!');
+  const fetchRequests = async () => {
+    const res = await fetch('/api/faculty/approvals');
+    const data = await res.json();
+    setRequests(data);
   };
 
-  const handleReject = (id: number) => {
-    setRequests(prev =>
-      prev.map(req => req.id === id ? { ...req, status: 'rejected' as const } : req)
-    );
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const handleApprove = async (id: number) => {
+    await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'approved' }) });
+    toast.success('Internship request approved!');
+    fetchRequests();
+  };
+
+  const handleReject = async (id: number) => {
+    await fetch('/api/faculty/approvals/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: 'rejected' }) });
     toast.error('Internship request rejected');
+    fetchRequests();
   };
 
   return (
