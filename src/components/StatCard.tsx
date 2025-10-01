@@ -6,18 +6,27 @@ interface StatCardProps {
   value: string | number;
   icon: LucideIcon;
   gradient?: boolean;
+  trend?: {
+    value: string;
+    isPositive: boolean;
+  };
 }
 
-const StatCard = ({ title, value, icon: Icon, gradient }: StatCardProps) => {
+const StatCard = ({ title, value, icon: Icon, gradient, trend }: StatCardProps) => {
   return (
-    <Card className={`p-6 hover:shadow-md transition-all hover:-translate-y-1 ${gradient ? 'bg-gradient-card' : ''}`}>
+    <Card className={`p-6 hover-lift cursor-pointer ${gradient ? 'card-gradient' : ''} group`}>
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">{title}</p>
-          <p className="text-3xl font-bold text-foreground">{value}</p>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-muted-foreground mb-2">{title}</p>
+          <p className="text-4xl font-bold text-foreground mb-1">{value}</p>
+          {trend && (
+            <p className={`text-xs font-medium ${trend.isPositive ? 'text-success' : 'text-destructive'}`}>
+              {trend.isPositive ? '↑' : '↓'} {trend.value}
+            </p>
+          )}
         </div>
-        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
+        <div className="h-14 w-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-md group-hover:shadow-glow transition-all">
+          <Icon className="h-7 w-7 text-white" />
         </div>
       </div>
     </Card>

@@ -3,64 +3,194 @@ import IndustrySidebar from '@/components/industry/IndustrySidebar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Award, Shield } from 'lucide-react';
+import { Award, Shield, Download, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 const IndustryCertificates = () => {
   const completedInterns = [
-    { id: 1, name: 'Sneha Patel', role: 'Backend Developer Intern', duration: '6 months', certified: true },
-    { id: 2, name: 'Rohit Verma', role: 'Cloud Engineer Intern', duration: '4 months', certified: false },
+    { 
+      id: 1, 
+      name: 'Sneha Patel', 
+      role: 'Backend Developer Intern', 
+      duration: '6 months', 
+      certified: true,
+      rating: 4.8,
+      completionDate: 'June 15, 2025',
+      achievements: ['Completed 12 projects', 'Excellent code quality', 'Strong team collaboration']
+    },
+    { 
+      id: 2, 
+      name: 'Rohit Verma', 
+      role: 'Cloud Engineer Intern', 
+      duration: '4 months', 
+      certified: false,
+      rating: 4.5,
+      completionDate: 'June 20, 2025',
+      achievements: ['AWS Certified', 'Deployed 5 applications', 'Quick learner']
+    },
+    { 
+      id: 3, 
+      name: 'Ananya Reddy', 
+      role: 'Data Analyst Intern', 
+      duration: '5 months', 
+      certified: true,
+      rating: 4.9,
+      completionDate: 'June 10, 2025',
+      achievements: ['Created 20+ dashboards', 'Python expertise', 'Outstanding performance']
+    },
   ];
 
-  const handleIssueCertificate = () => {
-    toast.success('Certificate issued and blockchain verified!');
+  const handleIssueCertificate = (name: string) => {
+    toast.success(
+      <div className="flex items-start gap-3">
+        <Award className="h-5 w-5 text-gold mt-0.5" />
+        <div>
+          <p className="font-semibold">Certificate Issued!</p>
+          <p className="text-sm text-muted-foreground">Blockchain verification in progress for {name}</p>
+        </div>
+      </div>
+    );
   };
 
   return (
     <DashboardLayout sidebar={<IndustrySidebar />}>
       <div className="space-y-6 animate-fade-in">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Certificates</h1>
-          <p className="text-muted-foreground">Issue completion certificates to interns</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 text-gradient-primary">Internship Certificates</h1>
+            <p className="text-muted-foreground text-lg">Issue blockchain-verified completion certificates</p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-gradient-gold rounded-lg shadow-glow-gold">
+            <Shield className="h-5 w-5 text-gold-foreground" />
+            <span className="font-semibold text-gold-foreground">Blockchain Secured</span>
+          </div>
         </div>
 
         <div className="space-y-4">
-          {completedInterns.map((intern) => (
-            <Card key={intern.id} className="p-6">
+          {completedInterns.map((intern, index) => (
+            <Card 
+              key={intern.id} 
+              className="p-6 card-gradient border-2 hover-lift"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Award className="h-6 w-6 text-primary" />
+                  <div className="flex items-start gap-4">
+                    <div className="h-16 w-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-md flex-shrink-0">
+                      <Award className="h-8 w-8 text-white" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold mb-1">{intern.name}</h3>
-                      <p className="text-sm text-muted-foreground">{intern.role}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Duration: {intern.duration}</p>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="text-2xl font-bold mb-1">{intern.name}</h3>
+                          <p className="text-muted-foreground font-medium">{intern.role}</p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className="flex items-center gap-1 mb-1">
+                            <span className="text-2xl font-bold text-gold">★</span>
+                            <span className="text-xl font-bold">{intern.rating}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">Rating</p>
+                        </div>
+                      </div>
                       
-                      {intern.certified && (
-                        <Badge className="mt-2 flex items-center gap-1 w-fit" variant="outline">
-                          <Shield className="h-3 w-3" />
-                          Blockchain Verified
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        <Badge variant="outline" className="text-xs">
+                          Duration: {intern.duration}
                         </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Completed: {intern.completionDate}
+                        </Badge>
+                      </div>
+
+                      <div className="mb-4">
+                        <p className="text-sm font-semibold mb-2">Key Achievements:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {intern.achievements.map((achievement, i) => (
+                            <Badge key={i} className="bg-success/10 text-success border-success/20 text-xs">
+                              ✓ {achievement}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {intern.certified && (
+                        <div className="flex items-center gap-2 p-3 bg-gradient-gold/10 border-2 border-gold/20 rounded-lg mb-4">
+                          <Shield className="h-5 w-5 text-gold" />
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">Blockchain Verified Certificate</p>
+                            <p className="text-xs text-muted-foreground">Certificate ID: #CERT{intern.id}2025{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  {intern.certified ? (
-                    <Badge variant="default">Certified</Badge>
-                  ) : (
-                    <Button onClick={handleIssueCertificate}>
-                      Issue Certificate
+              <div className="flex gap-2 mt-4">
+                {intern.certified ? (
+                  <>
+                    <Button className="flex-1 bg-gradient-primary hover:shadow-glow">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Certificate
                     </Button>
-                  )}
-                </div>
+                    <Button variant="outline" className="hover-scale">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View on Blockchain
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    className="flex-1 bg-gradient-gold hover:shadow-glow-gold"
+                    onClick={() => handleIssueCertificate(intern.name)}
+                  >
+                    <Award className="h-4 w-4 mr-2" />
+                    Issue Blockchain Certificate
+                  </Button>
+                )}
               </div>
             </Card>
           ))}
         </div>
+
+        <Card className="p-8 bg-gradient-to-br from-primary/5 via-accent/5 to-gold/5 border-2">
+          <div className="flex items-start gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-gold flex items-center justify-center shadow-glow-gold flex-shrink-0">
+              <Shield className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-2">About Blockchain Certificates</h3>
+              <p className="text-muted-foreground mb-4 leading-relaxed">
+                Our blockchain-verified certificates provide tamper-proof, instantly verifiable credentials that employers can trust. 
+                Each certificate is assigned a unique ID and stored on the blockchain, ensuring authenticity and preventing fraud.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-start gap-2">
+                  <Shield className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Secure & Tamper-Proof</p>
+                    <p className="text-xs text-muted-foreground">Blockchain-secured records</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Award className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Instant Verification</p>
+                    <p className="text-xs text-muted-foreground">Verify in seconds</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <ExternalLink className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Globally Recognized</p>
+                    <p className="text-xs text-muted-foreground">Accepted worldwide</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
     </DashboardLayout>
   );
